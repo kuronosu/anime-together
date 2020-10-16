@@ -31,7 +31,7 @@ export default function Search({setResults, queryUrl}) {
           align-items: center;
         }
         .SearchInput {
-          width: 70%;
+          width: 60%;
           padding: 8px 20px;
           margin: 8px 0;
           display: inline-block;
