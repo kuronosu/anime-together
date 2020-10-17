@@ -2,19 +2,22 @@ import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import Loader from "../../componets/loader";
 import {
-  // GENRES_END_POINT,
+  GENRES_END_POINT,
   SEARCH_END_POINT,
-  // STATES_END_POINT,
-  // TYPES_END_POINT,
+  STATES_END_POINT,
+  TYPES_END_POINT,
 } from "../../constants/api";
 import {
   JOIN_ROOM,
   ROOM_CONNECTED,
-  ROOM_NEW_ANIME,
   ROOM_SET_ANIME,
+  ROOM_SELECT_ANIME,
+  ROOM_SELECT_EPISODE,
+  ROOM_SET_EPISODE,
 } from "../../constants/events";
+import EpisodeList from "../../containers/episode-list";
 import Search from "../../containers/search";
-// import { convertListToObject } from "../../utils/generic";
+import { convertListToObject } from "../../utils/generic";
 import useSocket from "../../utils/use-socket";
 
 const Room = () => {
@@ -22,34 +25,37 @@ const Room = () => {
   const socket = useSocket([roomId]);
   const [animes, setAnimes] = useState([]);
   const [anime, setAnime] = useState(null);
+  const [episodeData, setEpisode] = useState(null);
   const [succes, setSucces] = useState(false);
   const [loading, setLoading] = useState(true);
-  // const [types, setTypes] = useState(null);
-  // const [states, setStates] = useState(null);
-  // const [genres, setGenres] = useState(null);
+  const [types, setTypes] = useState(null);
+  const [states, setStates] = useState(null);
+  const [genres, setGenres] = useState(null);
   const [isOverlayHidden, setIsOverlayHidden] = useState(true);
   useEffect(() => {
     socket?.emit(JOIN_ROOM, roomId);
     socket?.on(ROOM_CONNECTED, (data) => {
       setLoading(false);
       setSucces(data.connected);
+      setEpisode(data.episode);
       setAnime(data.anime);
     });
-    socket?.on(ROOM_NEW_ANIME, (a) => setAnime(a));
-  }, [socket])
+    socket?.on(ROOM_SET_ANIME, (a) => setAnime(a));
+    socket?.on(ROOM_SET_EPISODE, (e) => setEpisode(e));
+  }, [socket]);
 
-  // useEffect(() => {
-  //   fetch(TYPES_END_POINT)
-  //     .then((r) => r.json())
-  //     .then((d) => setTypes(convertListToObject(d)));
-  //   fetch(STATES_END_POINT)
-  //     .then((r) => r.json())
-  //     .then((d) => setStates(convertListToObject(d)));
-  //   fetch(GENRES_END_POINT)
-  //     .then((r) => r.json())
-  //     .then((d) => setGenres(convertListToObject(d)));
-  // }, []);
-  console.log(isOverlayHidden)
+  useEffect(() => {
+    fetch(TYPES_END_POINT)
+      .then((r) => r.json())
+      .then((d) => setTypes(convertListToObject(d)));
+    fetch(STATES_END_POINT)
+      .then((r) => r.json())
+      .then((d) => setStates(convertListToObject(d)));
+    fetch(GENRES_END_POINT)
+      .then((r) => r.json())
+      .then((d) => setGenres(convertListToObject(d)));
+  }, []);
+  console.log(isOverlayHidden);
   if (!succes || loading) {
     return <Loader loading={loading} text="La sala no exixte" />;
   }
@@ -63,20 +69,20 @@ const Room = () => {
       <div className="Container">
         <div className="VideoContainer">
           <div className="VideoWrapper">
-            <video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+            <video src={episodeData?.url} />
             <div className="Controlls" />
           </div>
-          <ul className="EpisodeList">
-            {anime?.episodes?.map((a) => (
-              <li key={a.eid}>
-                <div className="ImageContainer">
-                  <img src={a.img} />
-                  <div className="ImageOverlay" />
-                </div>
-                <span>{"Episodio " + a.number}</span>
-              </li>
-            ))}
-          </ul>
+          <EpisodeList
+            roomId={roomId}
+            active={episodeData?.episode?.number}
+            items={anime?.episodes}
+            onClick={element => {
+              socket?.emit(ROOM_SELECT_EPISODE, {
+                episode: element,
+                room: roomId,
+              });
+            }}
+          />
         </div>
         <div className={`AnimeListOverlay ${isOverlayHidden ? "hidden" : ""}`}>
           <button
@@ -87,14 +93,19 @@ const Room = () => {
           </button>
           <ul>
             {animes.map((a) => (
-              <li
-                key={a.flvid}
-                onClick={(_) => {
-                  setIsOverlayHidden(true);
-                  socket?.emit(ROOM_SET_ANIME, { anime: a, room: roomId });
-                }}
-              >
-                {a.name}
+              <li key={a.flvid}>
+                <div
+                  className="AnimeElement"
+                  onClick={(_) => {
+                    setIsOverlayHidden(true);
+                    socket?.emit(ROOM_SELECT_ANIME, { anime: a, room: roomId });
+                  }}
+                >
+                  <p>{a.name}</p>
+                  <small>{`${types[a.type].name} - ${
+                    states[a.state].name
+                  }`}</small>
+                </div>
               </li>
             ))}
           </ul>
@@ -103,8 +114,8 @@ const Room = () => {
       <style jsx>{`
         .CloseOverlay {
           position: absolute;
-          right: 25px;
-          top: 0;
+          right: 15px;
+          top: 15px;
         }
         .Container {
           position: relative;
@@ -119,7 +130,32 @@ const Room = () => {
           top: 0;
           left: 0;
           background-color: #f5f5f5;
+          border-top: 1px solid rgba(0, 0, 0, 0.2);
           z-index: 999;
+        }
+        .AnimeListOverlay ul {
+          padding-inline-end: 40px;
+        }
+        .AnimeListOverlay div {
+          padding-inline-end: 40px;
+        }
+        .AnimeElement {
+          cursor: pointer;
+        }
+        .AnimeListOverlay li {
+          list-style: none;
+          padding: 10px 0 10px 0;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        .AnimeListOverlay li:first-child {
+          padding-top: 0;
+        }
+        .AnimeListOverlay li:last-child {
+          padding-bottom: 0;
+          border-bottom: none;
+        }
+        .AnimeListOverlay li p {
+          margin: 0;
         }
         .VideoWrapper {
           width: 100%;
@@ -148,42 +184,6 @@ const Room = () => {
           align-items: center;
           flex-direction: column;
           margin-top: 5px;
-        }
-        .EpisodeList {
-          padding: 0;
-          overflow-x: auto;
-          width: 80%;
-          display: flex;
-        }
-        .ImageOverlay {
-          background-color: #2f2f2f;
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          left: 0;
-          right: 0;
-        }
-        .ImageContainer {
-          position: relative;
-          height: 80px;
-          width: 142px;
-        }
-        .EpisodeList li {
-          list-style: none;
-          margin: 0 5px 0 5px;
-          height: 105px;
-          min-width: 142px;
-        }
-        .ImageContainer img {
-          max-height: 80px;
-          position: absolute;
-          z-index: 1;
-        }
-        .EpisodeList li:last-child {
-          margin-right: 0;
-        }
-        .EpisodeList li:first-child {
-          margin-left: 0;
         }
       `}</style>
     </Fragment>
