@@ -1,29 +1,31 @@
-import React,{Fragment,useRef} from 'react';
-import Controls from './controles';
+import React, { Fragment, useRef } from "react";
+import Controls from "./controles";
 
-function Video({url}) {  
-
+function Video({ url }) {
   const videoEl = useRef(null);
   const videoCon = useRef(null);
-  
+
   return (
     <Fragment>
-      <div ref={videoCon} className="videoContainer">
-          <video ref={videoEl} 
-          src={url}>
-          </video>
-          <Controls video={videoEl} initialState={false} initialState={false} videoCon={videoCon} size={false}/>
+      <div ref={videoCon} className="VideoContainer">
+        <video ref={videoEl} src={url}/>
+        <Controls
+          video={videoEl}
+          initialState={false}
+          initialState={false}
+          videoCon={videoCon}
+          size={false}
+        />
       </div>
       <style jsx>
-        {
-          `
+        {`
           video {
             width: 100%;
             height: 100%;
             position: absolute;
           }
 
-          .videoContainer{
+          .VideoContainer {
             width: 100%;
             height: calc((9 / 16) * 100vw);
             max-height: calc(100vh - 169px);
@@ -33,10 +35,9 @@ function Video({url}) {
           }
 
           video::-webkit-media-controls {
-            display:none !important;
+            display: none !important;
           }
-          `
-        }
+        `}
       </style>
     </Fragment>
   );
