@@ -43,6 +43,7 @@ const ioHandler = (req, res) => {
         if (rooms.hasOwnProperty(room)) {
           rooms[room].anime = anime;
           rooms[room].episode = null;
+          io.to(room).emit(ROOM_SET_EPISODE, null);
           io.to(room).emit(ROOM_SET_ANIME, anime);
         }
       });

@@ -40,8 +40,8 @@ const Room = () => {
       setEpisode(data.episode);
       setAnime(data.anime);
     });
-    socket?.on(ROOM_SET_ANIME, (a) => setAnime(a));
     socket?.on(ROOM_SET_EPISODE, (e) => setEpisode(e));
+    socket?.on(ROOM_SET_ANIME, (a) => setAnime(a));
   }, [socket]);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const Room = () => {
         queryUrl={SEARCH_END_POINT}
       />
       <div className="Container">
-        <div className="VideoContainer">
+        <div className="MainContainer">
           <div className="VideoWrapper">
             <video src={episodeData?.url} />
             <div className="Controlls" />
@@ -178,7 +178,7 @@ const Room = () => {
           background-color: #000;
           position: absolute;
         }
-        .VideoContainer {
+        .MainContainer {
           display: flex;
           justify-content: center;
           align-items: center;
