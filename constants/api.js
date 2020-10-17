@@ -1,9 +1,20 @@
-export const API = "https://kuronosu.dev/api"
+const API = "https://kuronosu.dev/api";
 
-export const SEARCH_END_POINT = `${API}/animes/search`
+const ANIMES_END_POINT = `${API}/animes`;
 
-export const TYPES_END_POINT = `${API}/types`
+const SEARCH_END_POINT = `${ANIMES_END_POINT}/search`;
 
-export const STATES_END_POINT = `${API}/states`
+const TYPES_END_POINT = `${API}/types`;
 
-export const GENRES_END_POINT = `${API}/genres`
+const STATES_END_POINT = `${API}/states`;
+
+const GENRES_END_POINT = `${API}/genres`;
+
+module.exports = {
+  API,
+  ANIMES_END_POINT,
+  SEARCH_END_POINT,
+  TYPES_END_POINT,
+  STATES_END_POINT,
+  GENRES_END_POINT,
+};

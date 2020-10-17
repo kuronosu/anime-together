@@ -1,5 +1,16 @@
 const { v4: uuidv4 } = require("uuid");
-
+const fetch = require("node-fetch");
+const {
+  NEW_ROOM,
+  JOIN_ROOM,
+  ROOM_CONNECTED,
+  ROOM_SELECT_ANIME,
+  ROOM_SET_ANIME,
+  ROOM_SELECT_EPISODE,
+  ROOM_GETTING_EPISODE_STATUS,
+  ROOM_SET_EPISODE,
+} = require("./constants/events");
+const { gocdn } = require("./utils/servers");
 const server = require("http").createServer();
 
 const io = require("socket.io")(server, {
@@ -8,19 +19,6 @@ const io = require("socket.io")(server, {
   pingInterval: 10000,
   pingTimeout: 5000,
 });
-
-const NEW_ROOM = "room:new";
-const JOIN_ROOM = "room:join";
-const ROOM_CONNECTED = "room:connected";
-const ROOM_SELECT_ANIME = "room:select_anime";
-const ROOM_SET_ANIME = "room:set_anime";
-const ROOM_SELECT_EPISODE = "room:select_episode";
-const ROOM_GETTING_EPISODE_STATUS = "room:getting_episode_status";
-const ROOM_SET_EPISODE = "room:set_episode";
-
-function gocdnServer(anime_flvid, episode_number) {
-  return `https://kuronosu.dev/api/animes/${anime_flvid}/episodes/${episode_number}/gocdn`;
-}
 
 io.origins((_, c) => c(null, true));
 
@@ -61,7 +59,7 @@ io.on("connection", (socket) => {
         status: "loading",
         code: 0,
       });
-      fetch(gocdnServer(rooms[room].anime.flvid, episode.number))
+      fetch(gocdn(rooms[room].anime.flvid, episode.number))
         .then((r) => r.json())
         .then((d) => {
           console.log(d);
