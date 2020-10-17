@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Loader from "../../componets/loader";
 import {
   GENRES_END_POINT,
@@ -19,6 +19,7 @@ import EpisodeList from "../../containers/episode-list";
 import Search from "../../containers/search";
 import { convertListToObject } from "../../utils/generic";
 import useSocket from "../../utils/use-socket";
+import Video from "../../containers/video";
 
 const Room = () => {
   const roomId = useRouter().query.id;
@@ -68,10 +69,7 @@ const Room = () => {
       />
       <div className="Container">
         <div className="MainContainer">
-          <div className="VideoWrapper">
-            <video src={episodeData?.url} />
-            <div className="Controlls" />
-          </div>
+          <Video url="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"/>
           <EpisodeList
             roomId={roomId}
             active={episodeData?.episode?.number}
