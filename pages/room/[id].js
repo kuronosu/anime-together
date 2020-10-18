@@ -60,6 +60,7 @@ const Room = () => {
   if (!succes || loading) {
     return <Loader loading={loading} text="La sala no exixte" />;
   }
+  console.log(episodeData)
   return (
     <Fragment>
       <Search
@@ -69,7 +70,7 @@ const Room = () => {
       />
       <div className="Container">
         <div className="MainContainer">
-          <Video url="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"/>
+          <Video url={episodeData?.url}/>
           <EpisodeList
             roomId={roomId}
             active={episodeData?.episode?.number}
