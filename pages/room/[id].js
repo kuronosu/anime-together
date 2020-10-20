@@ -34,6 +34,7 @@ const Room = () => {
   const [states, setStates] = useState(null);
   const [genres, setGenres] = useState(null);
   const [isOverlayHidden, setIsOverlayHidden] = useState(true);
+  const [initialTime, setInitialTime] = useState(0)
   useEffect(() => {
     socket?.emit(JOIN_ROOM, roomId);
     socket?.on(ROOM_CONNECTED, (data) => {
@@ -41,6 +42,7 @@ const Room = () => {
       setSucces(data.connected);
       setEpisode(data.episode);
       setAnime(data.anime);
+      setInitialTime(data.currentTime)
     });
     socket?.on(ROOM_SET_EPISODE, (e) => setEpisode(e));
     socket?.on(ROOM_SET_ANIME, (a) => setAnime(a));
@@ -70,7 +72,7 @@ const Room = () => {
       />
       <div className="Container">
         <div className="MainContainer">
-          <Video socket={socket} roomId={roomId} url={episodeData?.url || ""} />
+          <Video socket={socket} roomId={roomId} url={episodeData?.url || ""} initialTime={initialTime} />
           <EpisodeList
             roomId={roomId}
             active={episodeData?.episode?.number}

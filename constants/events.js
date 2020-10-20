@@ -10,4 +10,6 @@ module.exports = {
   ROOM_REQUEST_CHANGE_PLAYING_STATUS: "room:request_change_playing_status",
   ROOM_CHANGE_PLAYING_STATUS: "room:toggle_play",
   ROOM_SET_CURRENT_TIME: "room:set_current_time",
+  ROOM_REQUEST_CHANGE_CURRENT_TIME: "room:request_change_current_time",
+  ROOM_CHANGE_CURRENT_TIME: "room:request_change_current_time",
 };

@@ -11,6 +11,9 @@ const {
   ROOM_SET_EPISODE,
   ROOM_REQUEST_CHANGE_PLAYING_STATUS,
   ROOM_CHANGE_PLAYING_STATUS,
+  ROOM_REQUEST_CHANGE_CURRENT_TIME,
+  ROOM_CHANGE_CURRENT_TIME,
+  ROOM_SET_CURRENT_TIME,
 } = require("./constants/events");
 const { gocdn } = require("./utils/servers");
 const server = require("http").createServer();
@@ -42,6 +45,7 @@ io.on("connection", (socket) => {
         room,
         anime: rooms[room].anime,
         episode: rooms[room].episode,
+        currentTime: rooms[room].currentTime,
       });
     } else socket.emit(ROOM_CONNECTED, { connected: false, room });
   });
@@ -86,6 +90,19 @@ io.on("connection", (socket) => {
         });
     }
   });
+
+  socket.on(ROOM_SET_CURRENT_TIME, ({room, currentTime}) => {
+    if (rooms.hasOwnProperty(room)) {
+      rooms[room].currentTime = currentTime
+    }
+  })
+
+  socket.on(ROOM_REQUEST_CHANGE_CURRENT_TIME, ({room, currentTime}) => {
+    if (rooms.hasOwnProperty(room)) {
+      rooms[room].currentTime = currentTime
+      io.to(room).emit(ROOM_CHANGE_CURRENT_TIME, currentTime);
+    }
+  })
 
   socket.on("disconnect", () => {});
 });

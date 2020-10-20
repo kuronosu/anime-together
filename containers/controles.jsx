@@ -7,10 +7,6 @@ import {
   MdVolumeOff,
   MdFullscreenExit,
 } from "react-icons/md";
-import {
-  ROOM_REQUEST_CHANGE_PLAYING_STATUS,
-  ROOM_CHANGE_PLAYING_STATUS,
-} from "../constants/events";
 
 function exitFullscreen() {
   if (document.exitFullscreen) {
@@ -46,8 +42,9 @@ const Controls = ({
   videoCon,
   size,
   handlePlayPause,
+  slider,
+  handleSliderChange,
 }) => {
-  const [slider, setSlider] = useState(0);
   const [isMuted, setIsMuted] = useState(initialMuted);
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setisFullscreen] = useState(size);
@@ -69,18 +66,6 @@ const Controls = ({
     setisFullscreen(!isFullscreen);
   };
 
-  video.current &&
-    (video.current.ontimeupdate = () => {
-      setSlider((video.current.currentTime / video.current.duration) * 100);
-    });
-
-  /* Slider*/
-  const sliderTime = (e) => {
-    setSlider(e.target.value);
-    var time = video.current.duration * (slider / 100);
-    video.current.currentTime = time;
-  };
-
   // console.log(isPlaying);
 
   return (
@@ -88,7 +73,7 @@ const Controls = ({
       <div className="controls">
         <input
           value={slider}
-          onChange={sliderTime}
+          onChange={handleSliderChange}
           type="range"
           min="0"
           max="100"

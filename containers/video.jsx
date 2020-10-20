@@ -3,26 +3,52 @@ import Controls from "./controles";
 import {
   ROOM_REQUEST_CHANGE_PLAYING_STATUS,
   ROOM_CHANGE_PLAYING_STATUS,
+  ROOM_REQUEST_CHANGE_CURRENT_TIME,
+  ROOM_CHANGE_CURRENT_TIME,
+  ROOM_SET_CURRENT_TIME,
+  ROOM_CONNECTED,
 } from "../constants/events";
 
-function Video({ url, socket, roomId }) {
+function Video({ url, socket, roomId, initialTime }) {
   const videoEl = useRef(null);
   const videoCon = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [slider, setSlider] = useState(0);
 
   useEffect(() => {
     socket?.on(ROOM_CHANGE_PLAYING_STATUS, (newPlayingState) => {
-      console.log(newPlayingState)
+      console.log(newPlayingState);
       setIsPlaying(newPlayingState);
     });
+    socket?.on(ROOM_CHANGE_CURRENT_TIME, (newCurrentTime) => {
+      videoEl.current.currentTime = newCurrentTime;
+    });
   }, [socket]);
+
+  useEffect(() => {
+    console.log((initialTime / videoEl.current.duration) * 100, initialTime)
+    if (videoEl.current && initialTime) {
+      videoEl.current.currentTime = initialTime;
+      setSlider((initialTime / videoEl.current.duration) * 100);
+    }
+  }, [initialTime, videoEl.current]);
 
   useEffect(() => {
     if (!isPlaying) videoEl.current?.pause();
     else videoEl.current?.play();
   }, [isPlaying]);
-  
-  console.log(isPlaying);
+
+  if (videoEl.current) {
+    videoEl.current.ontimeupdate = () => {
+      socket?.emit(ROOM_SET_CURRENT_TIME, {
+        room: roomId,
+        currentTime: videoEl.current.currentTime,
+      });
+      setSlider((videoEl.current.currentTime / videoEl.current.duration) * 100);
+    };
+  }
+
+  console.log("isPlaying" + slider);
   return (
     <Fragment>
       <div ref={videoCon} className="VideoContainer">
@@ -36,12 +62,19 @@ function Video({ url, socket, roomId }) {
           videoCon={videoCon}
           size={false}
           isPlaying={isPlaying}
+          slider={slider}
           handlePlayPause={() => {
             socket?.emit(ROOM_REQUEST_CHANGE_PLAYING_STATUS, {
               room: roomId,
               state: !isPlaying,
             });
           }}
+          handleSliderChange={(e) =>
+            socket.emit(ROOM_REQUEST_CHANGE_CURRENT_TIME, {
+              room: roomId,
+              currentTime: videoEl.current.duration * (e.target.value / 100),
+            })
+          }
         />
       </div>
       <style jsx>
