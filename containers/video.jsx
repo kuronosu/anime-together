@@ -1,20 +1,47 @@
-import React, { Fragment, useRef } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import Controls from "./controles";
+import {
+  ROOM_REQUEST_CHANGE_PLAYING_STATUS,
+  ROOM_CHANGE_PLAYING_STATUS,
+} from "../constants/events";
 
-function Video({ url }) {
+function Video({ url, socket, roomId }) {
   const videoEl = useRef(null);
   const videoCon = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
+  useEffect(() => {
+    socket?.on(ROOM_CHANGE_PLAYING_STATUS, (newPlayingState) => {
+      console.log(newPlayingState)
+      setIsPlaying(newPlayingState);
+    });
+  }, [socket]);
+
+  useEffect(() => {
+    if (!isPlaying) videoEl.current?.pause();
+    else videoEl.current?.play();
+  }, [isPlaying]);
+  
+  console.log(isPlaying);
   return (
     <Fragment>
       <div ref={videoCon} className="VideoContainer">
-        <video ref={videoEl} src={url}/>
+        <video ref={videoEl} src={url} />
         <Controls
+          socket={socket}
+          roomId={roomId}
           video={videoEl}
-          initialState={false}
-          initialState={false}
+          initialPlaying={false}
+          initialMuted={false}
           videoCon={videoCon}
           size={false}
+          isPlaying={isPlaying}
+          handlePlayPause={() => {
+            socket?.emit(ROOM_REQUEST_CHANGE_PLAYING_STATUS, {
+              room: roomId,
+              state: !isPlaying,
+            });
+          }}
         />
       </div>
       <style jsx>

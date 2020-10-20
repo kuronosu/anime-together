@@ -14,6 +14,7 @@ import {
   ROOM_SELECT_ANIME,
   ROOM_SELECT_EPISODE,
   ROOM_SET_EPISODE,
+  ROOM_CHANGE_PLAYING_STATUS,
 } from "../../constants/events";
 import EpisodeList from "../../containers/episode-list";
 import Search from "../../containers/search";
@@ -56,11 +57,10 @@ const Room = () => {
       .then((r) => r.json())
       .then((d) => setGenres(convertListToObject(d)));
   }, []);
-  console.log(isOverlayHidden);
   if (!succes || loading) {
     return <Loader loading={loading} text="La sala no exixte" />;
   }
-  console.log(episodeData)
+  // console.log(episodeData?.url || '')
   return (
     <Fragment>
       <Search
@@ -70,12 +70,12 @@ const Room = () => {
       />
       <div className="Container">
         <div className="MainContainer">
-          <Video url={episodeData?.url}/>
+          <Video socket={socket} roomId={roomId} url={episodeData?.url || ""} />
           <EpisodeList
             roomId={roomId}
             active={episodeData?.episode?.number}
             items={anime?.episodes}
-            onClick={element => {
+            onClick={(element) => {
               socket?.emit(ROOM_SELECT_EPISODE, {
                 episode: element,
                 room: roomId,

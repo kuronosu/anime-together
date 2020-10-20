@@ -9,6 +9,8 @@ const {
   ROOM_SELECT_EPISODE,
   ROOM_GETTING_EPISODE_STATUS,
   ROOM_SET_EPISODE,
+  ROOM_REQUEST_CHANGE_PLAYING_STATUS,
+  ROOM_CHANGE_PLAYING_STATUS,
 } = require("./constants/events");
 const { gocdn } = require("./utils/servers");
 const server = require("http").createServer();
@@ -27,7 +29,7 @@ let rooms = {};
 io.on("connection", (socket) => {
   socket.on(NEW_ROOM, () => {
     let room = uuidv4();
-    rooms[room] = { anime: null, episode: null };
+    rooms[room] = { anime: null, episode: null, currentTime: 0 };
     socket.join(room);
     socket.emit(ROOM_CONNECTED, { connected: true, room });
   });
@@ -53,6 +55,12 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on(ROOM_REQUEST_CHANGE_PLAYING_STATUS, ({ room, state }) => {
+    if (rooms.hasOwnProperty(room)) {
+      io.to(room).emit(ROOM_CHANGE_PLAYING_STATUS, state);
+    }
+  });
+
   socket.on(ROOM_SELECT_EPISODE, ({ episode, room }) => {
     if (rooms.hasOwnProperty(room)) {
       io.to(room).emit(ROOM_GETTING_EPISODE_STATUS, {
@@ -62,7 +70,6 @@ io.on("connection", (socket) => {
       fetch(gocdn(rooms[room].anime.flvid, episode.number))
         .then((r) => r.json())
         .then((d) => {
-          console.log(d);
           rooms[room].episode = { episode, url: d.active_url };
           io.to(room).emit(ROOM_SET_EPISODE, rooms[room].episode);
           io.to(room).emit(ROOM_GETTING_EPISODE_STATUS, {
