@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
+process.env.SERVER_HOST = "kuronosu.dev";
+process.env.SERVER_PORT = "default";
+
 export default function useSocket(stop = []) {
   const [s, set] = useState(null);
   useEffect(() => {
