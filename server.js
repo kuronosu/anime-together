@@ -19,11 +19,8 @@ const { gocdn } = require("./utils/servers");
 const server = require("http").createServer();
 
 const io = require("socket.io")(server, {
-  path: '/ws',
   serveClient: false,
-  // below are engine.IO options
-  pingInterval: 10000,
-  pingTimeout: 5000,
+  origins: '*:*',
 });
 
 io.origins((_, c) => c(null, true));
