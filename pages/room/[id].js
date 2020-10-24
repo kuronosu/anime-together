@@ -60,7 +60,7 @@ const Room = () => {
       .then((d) => setGenres(convertListToObject(d)));
   }, []);
   if (!succes || loading) {
-    return <Loader loading={loading} text="La sala no exixte" />;
+    return <Loader loading={loading} text="La sala no existe" />;
   }
   // console.log(episodeData?.url || '')
   return (
