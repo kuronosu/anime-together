@@ -14,6 +14,7 @@ function Video({ url, socket, roomId, initialTime }) {
   const videoCon = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [slider, setSlider] = useState(0);
+  const [isHidden, setIsHidden] = useState(false);
 
   useEffect(() => {
     socket?.on(ROOM_CHANGE_PLAYING_STATUS, (newPlayingState) => {
@@ -26,7 +27,7 @@ function Video({ url, socket, roomId, initialTime }) {
   }, [socket]);
 
   useEffect(() => {
-    console.log((initialTime / videoEl.current.duration) * 100, initialTime)
+    console.log((initialTime / videoEl.current.duration) * 100, initialTime);
     if (videoEl.current && initialTime) {
       videoEl.current.currentTime = initialTime;
       setSlider((initialTime / videoEl.current.duration) * 100);
@@ -52,8 +53,13 @@ function Video({ url, socket, roomId, initialTime }) {
   return (
     <Fragment>
       <div ref={videoCon} className="VideoContainer">
-        <video ref={videoEl} src={url} />
+        <video
+          onClick={(_) => setIsHidden(!isHidden)}
+          ref={videoEl}
+          src={url}
+        />
         <Controls
+          isHidden={isHidden}
           socket={socket}
           roomId={roomId}
           video={videoEl}

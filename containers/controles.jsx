@@ -44,6 +44,7 @@ const Controls = ({
   handlePlayPause,
   slider,
   handleSliderChange,
+  isHidden,
 }) => {
   const [isMuted, setIsMuted] = useState(initialMuted);
   const [volume, setVolume] = useState(1);
@@ -70,7 +71,7 @@ const Controls = ({
 
   return (
     <Fragment>
-      <div className="controls">
+      <div className={`controls ${isHidden? 'hidden': ''}`}>
         <input
           value={slider}
           onChange={handleSliderChange}
@@ -109,6 +110,9 @@ const Controls = ({
             cursor: pointer;
             color: white;
             font-size: calc(8px + 2vmin);
+          }
+          .hidden {
+            display: none !important;
           }
 
           .controls {
