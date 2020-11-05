@@ -13,7 +13,7 @@ export default function EpisodeList({items, onClick, active, roomId}) {
             onClick={() => onClick(e)}
           >
             <div className="ImageContainer">
-              <img src={e.img} />
+              <img src={`https://kuronosu.dev${e.img}`} />
               <div className="ImageOverlay" />
             </div>
             <span>{"Episodio " + e.number}</span>
