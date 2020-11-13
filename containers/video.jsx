@@ -15,6 +15,8 @@ function Video({ url, socket, roomId, initialTime }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [slider, setSlider] = useState(0);
   const [isHidden, setIsHidden] = useState(false);
+  const [timeCurrent, settimeCurrent] = useState(0 +":"+0+0);
+  const [durationTime, setdurationTime] = useState(0 +":"+0+0);
 
   useEffect(() => {
     socket?.on(ROOM_CHANGE_PLAYING_STATUS, (newPlayingState) => {
@@ -39,6 +41,24 @@ function Video({ url, socket, roomId, initialTime }) {
     else videoEl.current?.play();
   }, [isPlaying]);
 
+  const setTime = () =>{
+    var curmins = Math.floor(videoEl.current.currentTime / 60);
+    var cursecs = Math.floor(videoEl.current.currentTime - curmins * 60)
+    var durmins = Math.floor(videoEl.current.duration / 60);
+    var dursecs = Math.floor(videoEl.current.duration - durmins * 60)
+
+    if(cursecs < 10){
+      cursecs = "0"+cursecs
+    }
+
+    if(dursecs < 10){
+      dursecs = "0"+dursecs
+    }
+    
+    setdurationTime(durmins + ":" + dursecs);
+    settimeCurrent(curmins + ":" + cursecs);
+  }
+
   if (videoEl.current) {
     videoEl.current.ontimeupdate = () => {
       socket?.emit(ROOM_SET_CURRENT_TIME, {
@@ -46,6 +66,7 @@ function Video({ url, socket, roomId, initialTime }) {
         currentTime: videoEl.current.currentTime,
       });
       setSlider((videoEl.current.currentTime / videoEl.current.duration) * 100);
+      setTime();
     };
   }
 
@@ -69,6 +90,8 @@ function Video({ url, socket, roomId, initialTime }) {
           size={false}
           isPlaying={isPlaying}
           slider={slider}
+          durationTime={durationTime}
+          timeCurrent={timeCurrent}
           handlePlayPause={() => {
             socket?.emit(ROOM_REQUEST_CHANGE_PLAYING_STATUS, {
               room: roomId,

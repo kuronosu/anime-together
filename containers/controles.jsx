@@ -45,10 +45,13 @@ const Controls = ({
   slider,
   handleSliderChange,
   isHidden,
+  durationTime,
+  timeCurrent
 }) => {
   const [isMuted, setIsMuted] = useState(initialMuted);
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setisFullscreen] = useState(size);
+  const [volumeSlider, setvolumeSlider] = useState(1);
 
   const toggleMute = () => {
     if (isMuted) {
@@ -67,6 +70,13 @@ const Controls = ({
     setisFullscreen(!isFullscreen);
   };
 
+  const sliderVolume = (e) => {
+    setvolumeSlider(e.target.value);
+    setVolume(volumeSlider);
+    video.current.volume = volume;
+    console.log(volume)
+  }
+
   // console.log(isPlaying);
 
   return (
@@ -74,33 +84,50 @@ const Controls = ({
       <div className={`controls ${isHidden? 'hidden': ''}`}>
         <input
           value={slider}
+          id="timeSlider"
           onChange={handleSliderChange}
           type="range"
           min="0"
           max="100"
           step="0.001"
         />
-        <div className="buttonsCont">
-          <div className="button">
-            {isPlaying ? (
-              <MdPause onClick={handlePlayPause} />
-            ) : (
-              <MdPlayArrow onClick={handlePlayPause} />
-            )}
+        <div className = "botones">
+          <div className="buttonsCont">
+            <div className="button">
+              {isPlaying ? (
+                <MdPause onClick={handlePlayPause} />
+              ) : (
+                <MdPlayArrow onClick={handlePlayPause} />
+              )}
+            </div>
+            <div className="button">
+              {isMuted ? (
+                <MdVolumeOff onClick={toggleMute} />
+              ) : (
+                <MdVolumeDown onClick={toggleMute} />
+              )}
+            </div>
+            <input
+              value={volumeSlider}
+              id="volumeSlider"
+              onChange={sliderVolume}
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+            />
+            <div className ="timeText">
+              <span>
+                {video.current? (timeCurrent):("0:00")}/{video.current? (durationTime):("0:00")}
+              </span>
+            </div>
           </div>
           <div className="button">
-            {isMuted ? (
-              <MdVolumeOff onClick={toggleMute} />
-            ) : (
-              <MdVolumeDown onClick={toggleMute} />
-            )}
-          </div>
-          <div className="button">
-            {isFullscreen ? (
-              <MdFullscreenExit onClick={fullScreen} />
-            ) : (
-              <MdCropFree onClick={fullScreen} />
-            )}
+              {isFullscreen ? (
+                <MdFullscreenExit onClick={fullScreen} />
+              ) : (
+                <MdCropFree onClick={fullScreen} />
+              )}
           </div>
         </div>
       </div>
@@ -130,10 +157,26 @@ const Controls = ({
           .buttonsCont {
             width: 100%;
             display: flex;
+            padding-left: 10px;
           }
 
-          .controls input[type="range"] {
+          #timeSlider{
             width: 98%;
+          }
+
+          .timeText{
+            display: flex;
+            font-size: small;
+            padding-left: 5px;
+            padding-top: 3px;
+            color: white;
+          }
+
+          .botones{
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 12px;
           }
         `}
       </style>
