@@ -144,14 +144,17 @@ const Controls = ({
 
           .controls {
             position: absolute;
-            width: 98%;
+            width: 100%;
             left: 0;
             bottom: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin: 0 5px 0 5px;
+            padding: 0 5px 0 5px;
+            -moz-box-shadow: inset 0 -1.5em 2em -1em #000;
+            -webkit-box-shadow: inset 0 -1.5em 2em -1em #000;
+            box-shadow: inset 0 -1.5em 2em -1em #000;
           }
 
           .buttonsCont {
