@@ -19,12 +19,11 @@ import {
 import EpisodeList from "../../containers/episode-list";
 import Search from "../../containers/search";
 import { convertListToObject } from "../../utils/generic";
-import useSocket from "../../utils/use-socket";
 import Video from "../../containers/video";
+import { ws } from "../../utils/socket-context";
 
 const Room = () => {
   const roomId = useRouter().query.id;
-  const socket = useSocket([roomId]);
   const [animes, setAnimes] = useState([]);
   const [anime, setAnime] = useState(null);
   const [episodeData, setEpisode] = useState(null);
@@ -36,17 +35,17 @@ const Room = () => {
   const [isOverlayHidden, setIsOverlayHidden] = useState(true);
   const [initialTime, setInitialTime] = useState(0)
   useEffect(() => {
-    socket?.emit(JOIN_ROOM, roomId);
-    socket?.on(ROOM_CONNECTED, (data) => {
+    ws?.emit(JOIN_ROOM, roomId);
+    ws?.on(ROOM_CONNECTED, (data) => {
       setLoading(false);
       setSucces(data.connected);
       setEpisode(data.episode);
       setAnime(data.anime);
       setInitialTime(data.currentTime)
     });
-    socket?.on(ROOM_SET_EPISODE, (e) => setEpisode(e));
-    socket?.on(ROOM_SET_ANIME, (a) => setAnime(a));
-  }, [socket]);
+    ws?.on(ROOM_SET_EPISODE, (e) => setEpisode(e));
+    ws?.on(ROOM_SET_ANIME, (a) => setAnime(a));
+  }, []);
 
   useEffect(() => {
     fetch(TYPES_END_POINT)
@@ -72,13 +71,13 @@ const Room = () => {
       />
       <div className="Container">
         <div className="MainContainer">
-          <Video socket={socket} roomId={roomId} url={episodeData?.url || ""} initialTime={initialTime} />
+          <Video socket={ws} roomId={roomId} url={episodeData?.url || ""} initialTime={initialTime} />
           <EpisodeList
             roomId={roomId}
             active={episodeData?.episode?.number}
             items={anime?.episodes}
             onClick={(element) => {
-              socket?.emit(ROOM_SELECT_EPISODE, {
+              ws?.emit(ROOM_SELECT_EPISODE, {
                 episode: element,
                 room: roomId,
               });
@@ -99,7 +98,7 @@ const Room = () => {
                   className="AnimeElement"
                   onClick={(_) => {
                     setIsOverlayHidden(true);
-                    socket?.emit(ROOM_SELECT_ANIME, { anime: a, room: roomId });
+                    ws?.emit(ROOM_SELECT_ANIME, { anime: a, room: roomId });
                   }}
                 >
                   <p>{a.name}</p>
