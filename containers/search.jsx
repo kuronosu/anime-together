@@ -4,7 +4,6 @@ export default function Search({ setResults, queryUrl, onFocus }) {
   const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     const timeOutId = setTimeout(() => {
-      console.log(searchTerm);
       window &&
         fetch(`${queryUrl}?name=${searchTerm}`)
           .then((r) => r.json())

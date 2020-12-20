@@ -74,7 +74,6 @@ const Controls = ({
     setvolumeSlider(e.target.value);
     setVolume(volumeSlider);
     video.current.volume = volume;
-    console.log(volume)
   }
 
   // console.log(isPlaying);

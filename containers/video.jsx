@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import Controls from "./controles";
+import Controls from "./controls";
 import {
   ROOM_REQUEST_CHANGE_PLAYING_STATUS,
   ROOM_CHANGE_PLAYING_STATUS,
@@ -8,8 +8,9 @@ import {
   ROOM_SET_CURRENT_TIME,
   ROOM_CONNECTED,
 } from "../constants/events";
+import { ws } from "../utils/socket-context";
 
-function Video({ url, socket, roomId, initialTime }) {
+function Video({ url, roomId, initialTime }) {
   const videoEl = useRef(null);
   const videoCon = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,17 +20,15 @@ function Video({ url, socket, roomId, initialTime }) {
   const [durationTime, setdurationTime] = useState(0 +":"+0+0);
 
   useEffect(() => {
-    socket?.on(ROOM_CHANGE_PLAYING_STATUS, (newPlayingState) => {
-      console.log(newPlayingState);
+    ws?.on(ROOM_CHANGE_PLAYING_STATUS, (newPlayingState) => {
       setIsPlaying(newPlayingState);
     });
-    socket?.on(ROOM_CHANGE_CURRENT_TIME, (newCurrentTime) => {
+    ws?.on(ROOM_CHANGE_CURRENT_TIME, (newCurrentTime) => {
       videoEl.current.currentTime = newCurrentTime;
     });
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
-    console.log((initialTime / videoEl.current.duration) * 100, initialTime);
     if (videoEl.current && initialTime) {
       videoEl.current.currentTime = initialTime;
       setSlider((initialTime / videoEl.current.duration) * 100);
@@ -61,7 +60,7 @@ function Video({ url, socket, roomId, initialTime }) {
 
   if (videoEl.current) {
     videoEl.current.ontimeupdate = () => {
-      socket?.emit(ROOM_SET_CURRENT_TIME, {
+      ws?.emit(ROOM_SET_CURRENT_TIME, {
         room: roomId,
         currentTime: videoEl.current.currentTime,
       });
@@ -70,7 +69,6 @@ function Video({ url, socket, roomId, initialTime }) {
     };
   }
 
-  console.log("isPlaying" + slider);
   return (
     <Fragment>
       <div ref={videoCon} className="VideoContainer">
@@ -81,7 +79,6 @@ function Video({ url, socket, roomId, initialTime }) {
         />
         <Controls
           isHidden={isHidden}
-          socket={socket}
           roomId={roomId}
           video={videoEl}
           initialPlaying={false}
@@ -93,13 +90,13 @@ function Video({ url, socket, roomId, initialTime }) {
           durationTime={durationTime}
           timeCurrent={timeCurrent}
           handlePlayPause={() => {
-            socket?.emit(ROOM_REQUEST_CHANGE_PLAYING_STATUS, {
+            ws?.emit(ROOM_REQUEST_CHANGE_PLAYING_STATUS, {
               room: roomId,
               state: !isPlaying,
             });
           }}
           handleSliderChange={(e) =>
-            socket.emit(ROOM_REQUEST_CHANGE_CURRENT_TIME, {
+            ws.emit(ROOM_REQUEST_CHANGE_CURRENT_TIME, {
               room: roomId,
               currentTime: videoEl.current.duration * (e.target.value / 100),
             })

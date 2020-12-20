@@ -45,7 +45,7 @@ const Room = () => {
     });
     ws?.on(ROOM_SET_EPISODE, (e) => setEpisode(e));
     ws?.on(ROOM_SET_ANIME, (a) => setAnime(a));
-  }, []);
+  }, [ws]);
 
   useEffect(() => {
     fetch(TYPES_END_POINT)
@@ -71,7 +71,7 @@ const Room = () => {
       />
       <div className="Container">
         <div className="MainContainer">
-          <Video socket={ws} roomId={roomId} url={episodeData?.url || ""} initialTime={initialTime} />
+          <Video roomId={roomId} url={episodeData?.url || ""} initialTime={initialTime} />
           <EpisodeList
             roomId={roomId}
             active={episodeData?.episode?.number}
