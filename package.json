@@ -10,7 +10,7 @@
     "server-dev": "nodemon ./server.js"
   },
   "dependencies": {
-    "next": "9.5.5",
+    "next": "11.1.3",
     "node-fetch": "^2.6.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
